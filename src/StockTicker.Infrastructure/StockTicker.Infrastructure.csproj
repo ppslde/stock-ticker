@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <InternalsVisibleTo Include="StockTicker.Infrastructure.Tests" />
+      <PackageReference Include="Azure.Data.Tables" Version="12.8.2" />
+      <PackageReference Include="Flurl" Version="4.0.0" />
+      <ProjectReference Include="..\StockTicker.Core\StockTicker.Core.csproj" />
+  </ItemGroup>
+
+</Project>
