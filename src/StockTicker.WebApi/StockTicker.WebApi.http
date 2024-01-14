@@ -1,0 +1,6 @@
+@StockTicker.WebApi_HostAddress = http://localhost:5226
+
+GET {{StockTicker.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
