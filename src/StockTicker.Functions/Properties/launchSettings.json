@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "StockTicker_Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7001",
+      "launchBrowser": false
+    }
+  }
+}
