@@ -27,15 +27,15 @@ stages:
           displayName: 'Install GitVersion'
 
         - task: gitversion/execute@0
-          displayName: 'Determine Version'
+          displayName: 'Determine version'
 
         - task: PowerShell@2
           inputs:
             targetType: inline
             script: |
               Write-Host "New build number: $(GitVersion.LegacySemVer)"
-              Write-Host '##vso[build.updatebuildnumber]$(GitVersion.LegacySemVer)'
-          displayName: Set build number
+              Write-Host '##vso[build.updatebuildnumber]$((Get-Date).year).$(GitVersion.Minor).$(GitVersion.Patch)-$(GitVersion.WeightedPreReleaseNumber)'
+          displayName: 'Set build number'
 
         - task: UseDotNet@2
           inputs:
@@ -94,8 +94,8 @@ stages:
             SDK_CONTAINER_REGISTRY_PWORD: '$(container_registry_password)'
           displayName: 'Publish WebApi container'
 
-- stage: 'Dev'
-  displayName: 'Deploy to the dev environment'
+- stage: 'System'
+  displayName: 'Deploy system'
   dependsOn: Build
   condition:  succeeded()
   variables:
@@ -136,4 +136,26 @@ stages:
                         --parameters ./.pipeline/azure-deployment.bicepparam \
                         --what-if
                 failOnStandardError: true
-              displayName: What-If infrastructure
+              displayName: 'What-if infrastructure'
+
+            - task: AzureCLI@2
+              env:
+                    AZURE_CORE_OUTPUT: table
+                    CONTAINERREGISTRY_USERNAME: $(container_registry_user)
+                    CONTAINERREGISTRY_PASSWORD: $(container_registry_password)
+                    CONTAINERREGISTRY: $(container_registry)
+                    DEPLOY_IMAGE_EODRUNNER: $(container_repo_eodrunner)
+                    DEPLOY_IMAGE_WEBAPI: $(container_repo_webapi)
+                    DEPLOY_CONTAINER_TAG: $(container_tag)
+                    AUTH_CLIENTID: $(auth_client_id)
+                    AUTH_CLIENTSECRET: $(auth_client_secret)
+              inputs:
+                azureSubscription: $(service_connection)
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                    az deployment group create \
+                        --resource-group $(resource_group_name) \
+                        --mode Complete \
+                        --parameters ./.pipeline/azure-deployment.bicepparam
+              displayName: 'Deploy infrastructure'
