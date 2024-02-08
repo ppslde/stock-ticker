@@ -78,7 +78,7 @@ stages:
             command: 'publish'
             publishWebProjects: false
             projects: 'src/StockTicker.EodUpdateRunner/StockTicker.EodUpdateRunner.csproj'
-            arguments: '-t:PublishContainer -p:ContainerRegistry=&(container_registry) -p:ContainerRepository=$(container_repo_eodrunner) -p:ContainerImageTag=$(Build.BuildNumber)'
+            arguments: '-t:PublishContainer -p:ContainerRegistry=$container_registry) -p:ContainerRepository=$(container_repo_eodrunner) -p:ContainerImageTag=$(Build.BuildNumber)'
           env:
             SDK_CONTAINER_REGISTRY_UNAME: '$(container_registry_user)'
             SDK_CONTAINER_REGISTRY_PWORD: '$(container_registry_password)'
@@ -88,7 +88,7 @@ stages:
           inputs:
             command: 'publish'
             projects: 'src/StockTicker.WebApi/StockTicker.WebApi.csproj'
-            arguments: '-p:PublishProfile=DefaultContainer -p:ContainerRegistry=&(container_registry) -p:ContainerRepository=$(container_repo_webapi) -p:ContainerImageTag=$(Build.BuildNumber)'
+            arguments: '-p:PublishProfile=DefaultContainer -p:ContainerRegistry=$(container_registry) -p:ContainerRepository=$(container_repo_webapi) -p:ContainerImageTag=$(Build.BuildNumber)'
           env:
             SDK_CONTAINER_REGISTRY_UNAME: '$(container_registry_user)'
             SDK_CONTAINER_REGISTRY_PWORD: '$(container_registry_password)'
@@ -116,11 +116,11 @@ stages:
             - task: AzureCLI@2
               env:
                     AZURE_CORE_OUTPUT: table
-                    CONTAINERREGISTRY_USERNAME: $(sdk_container_user)
-                    CONTAINERREGISTRY_PASSWORD: $(sdk_container_registry)
-                    CONTAINERREGISTRY: $(sdk_container_registry)
-                    DEPLOY_IMAGE_EODRUNNER: $(ingest_api_repo)
-                    DEPLOY_IMAGE_WEBAPI: $(web_api_repo)
+                    CONTAINERREGISTRY_USERNAME: $(container_registry_user)
+                    CONTAINERREGISTRY_PASSWORD: $(container_registry_password)
+                    CONTAINERREGISTRY: $(container_registry)
+                    DEPLOY_IMAGE_EODRUNNER: $(container_repo_eodrunner)
+                    DEPLOY_IMAGE_WEBAPI: $(container_repo_webapi)
                     DEPLOY_CONTAINER_TAG: $(container_tag)
                     AUTH_CLIENTID: $(auth_client_id)
                     AUTH_CLIENTSECRET: $(auth_client_secret)
