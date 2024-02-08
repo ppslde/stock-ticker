@@ -33,7 +33,8 @@ stages:
           inputs:
             targetType: inline
             script: |
-              $buildNumber = '$((Get-Date).year).$(GitVersion.Minor).$(GitVersion.Patch)-$(GitVersion.WeightedPreReleaseNumber)'
+              $dateYear = $(Get-Date -Format "yyyy")
+              $buildNumber = '$dateYear.$(GitVersion.Minor).$(GitVersion.Patch)-$(GitVersion.WeightedPreReleaseNumber)'
               Write-Host "New build number: $buildNumber"
               Write-Host '##vso[build.updatebuildnumber]$buildNumber'
           displayName: 'Set build number'
