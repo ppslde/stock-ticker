@@ -73,7 +73,7 @@ resource logWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
     sku: {
       name: 'PerGB2018'
     }
-    retentionInDays: 8
+    retentionInDays: 30
   }
 }
 
@@ -85,7 +85,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
     Application_Type: 'web'
     Flow_Type: 'Redfield'
     Request_Source: 'IbizaAIExtension'
-    RetentionInDays: 7
+    RetentionInDays: 30
     WorkspaceResourceId: logWorkspace.id
     IngestionMode: 'LogAnalytics'
     publicNetworkAccessForIngestion: 'Enabled'
