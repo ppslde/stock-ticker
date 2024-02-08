@@ -11,7 +11,7 @@ internal static class ConfigureService
         services.Configure<AlphaVantageSettings>(configuration.GetSection(nameof(AlphaVantageSettings)));
 
         services.AddSingleton<IApiKeyProvider, AlphaVantageApiKeyProvider>();
-        services.AddScoped<IStockProvider, AlphaVantageStockProvider>();
+        services.AddTransient<IStockProvider, AlphaVantageStockProvider>();
 
         return services;
     }

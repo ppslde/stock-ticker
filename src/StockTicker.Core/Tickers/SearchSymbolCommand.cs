@@ -22,6 +22,6 @@ internal class SearchSymbolCommandHandler : IRequestHandler<SearchSymbolCommand,
     public Task<IEnumerable<StockSymbolEntry>> Handle(SearchSymbolCommand request, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Handle {Command} term=[{SearchTerm}]", nameof(SearchSymbolCommand), request.SearchTerm);
-        return _stockProvider.SearchSymbolAsync(request.SearchTerm);
+        return _stockProvider.SearchSymbolAsync(request.SearchTerm, cancellationToken);
     }
 }

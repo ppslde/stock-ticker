@@ -3,5 +3,6 @@
 namespace StockTicker.Core.Common.Contracts;
 public interface IStockProvider
 {
-    Task<IEnumerable<StockSymbolEntry>> SearchSymbolAsync(string searchTerm);
+    Task<IEnumerable<EndOfDayEntry>> GetEndOfDayDataAsync(StockSymbolEntry stockSymbol, CancellationToken cancellationToken);
+    Task<IEnumerable<StockSymbolEntry>> SearchSymbolAsync(string searchTerm, CancellationToken cancellationToken);
 }

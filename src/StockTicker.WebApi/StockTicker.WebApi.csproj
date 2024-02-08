@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
     <UserSecretsId>6ee8ca97-4bb0-48cf-a934-ad59f54e6d38</UserSecretsId>
+
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled</ContainerBaseImage>
   </PropertyGroup>
 
   <ItemGroup>

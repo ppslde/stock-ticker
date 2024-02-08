@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Globalization;
+using Microsoft.Extensions.Logging;
 using StockTicker.Core.Common.Contracts;
 using StockTicker.Core.Common.Models;
 using StockTicker.Infrastructure.Storage.Common;
@@ -8,6 +9,8 @@ namespace StockTicker.Infrastructure.Data;
 
 internal class StockSymbolRepository : IStockSymbolRepository
 {
+    private const string _tableName = "StockSymbols";
+
     private readonly ILogger<StockSymbolRepository> _logger;
     private readonly IStorage<SymbolTableEntry> _storage;
 
@@ -15,6 +18,24 @@ internal class StockSymbolRepository : IStockSymbolRepository
     {
         _logger = loggerFactory.CreateLogger<StockSymbolRepository>();
         _storage = storage;
+    }
+
+    public async Task<IEnumerable<StockSymbolEntry>> GetEnabledTickers(CancellationToken cancellationToken)
+    {
+        IEnumerable<SymbolTableEntry> symbols = await _storage.QueryEntitiesAsync(_tableName, e => e.UseInDaílyUpdate, cancellationToken).ConfigureAwait(false);
+
+        return symbols.Select(s => new StockSymbolEntry
+        {
+            Type = s.PartitionKey,
+            Key = s.RowKey,
+            Name = s.Name,
+            Region = s.Region,
+            TimeZone = s.TimeZone,
+            Currency = s.Currency,
+            UseInDaílyUpdate = s.UseInDaílyUpdate,
+            MarketClose = TimeOnly.TryParse(s.MarketClose, CultureInfo.InvariantCulture, out var close) ? close : TimeOnly.MinValue,
+            MarketOpen = TimeOnly.TryParse(s.MarketOpen, CultureInfo.InvariantCulture, out var open) ? open : TimeOnly.MinValue,
+        });
     }
 
     public async Task SaveStockEntry(StockSymbolEntry stockSymbol, CancellationToken cancellationToken)

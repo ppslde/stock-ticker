@@ -11,7 +11,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddStockTickerInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IStockSymbolRepository, StockSymbolRepository>();
+        services.AddTransient<IStockSymbolRepository, StockSymbolRepository>();
+        services.AddTransient<IEndOfDayValuesRepository, EndOfDayValuesRepository>();
+
         services.AddAlphaVantageProvider(configuration);
         services.AddAzureTableStorage(configuration);
 

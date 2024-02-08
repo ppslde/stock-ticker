@@ -18,13 +18,13 @@ internal class AlphaVantageStockProvider : IStockProvider
         _apiKeyProvider = apiKeyProvider;
     }
 
-    public async Task<IEnumerable<EndOfDayEntry>> GetStocksAsync(string stockSymbol)
+    public async Task<IEnumerable<EndOfDayEntry>> GetEndOfDayDataAsync(StockSymbolEntry stockSymbol, CancellationToken cancellationToken)
     {
         DailySeriesFunctionBuilder url = new AlphaVantageUrl(_settings.BaseUrl)
                                                 .DailySeries()
-                                                .ForSymbol(stockSymbol);
+                                                .ForSymbol(stockSymbol.Key);
 
-        Dictionary<string, JsonElement> result = await QueryDataAsync(url);
+        Dictionary<string, JsonElement> result = await QueryDataAsync(url, cancellationToken).ConfigureAwait(false);
 
         MetaData? metaData = result?.ElementAt(0).Value.Deserialize<MetaData>();
         Dictionary<DateOnly, JsonElement> eodResults = result?.ElementAt(1).Value.Deserialize<Dictionary<DateOnly, JsonElement>>() ?? [];
@@ -46,13 +46,13 @@ internal class AlphaVantageStockProvider : IStockProvider
         }).ToList();
     }
 
-    public async Task<IEnumerable<StockSymbolEntry>> SearchSymbolAsync(string searchTerm)
+    public async Task<IEnumerable<StockSymbolEntry>> SearchSymbolAsync(string searchTerm, CancellationToken cancellationToken)
     {
         SearchFunctionBuilder url = new AlphaVantageUrl(_settings.BaseUrl)
                                         .Search()
                                         .ForTerm(searchTerm);
 
-        Dictionary<string, JsonElement> result = await QueryDataAsync(url);
+        Dictionary<string, JsonElement> result = await QueryDataAsync(url, cancellationToken).ConfigureAwait(false);
 
         SearchData[] data = result.ElementAt(0).Value.Deserialize<SearchData[]>() ?? [];
 
@@ -69,7 +69,7 @@ internal class AlphaVantageStockProvider : IStockProvider
         }).ToList();
     }
 
-    private async Task<Dictionary<string, JsonElement>> QueryDataAsync(FunctionQueryBuilder urlBuilder)
+    private async Task<Dictionary<string, JsonElement>> QueryDataAsync(FunctionQueryBuilder urlBuilder, CancellationToken cancellationToken)
     {
         Dictionary<string, JsonElement> result = [];
 
@@ -84,11 +84,11 @@ internal class AlphaVantageStockProvider : IStockProvider
                         .WithApiKey(apikey)
                         .Build();
 
-            HttpResponseMessage response = await client.GetAsync(url);
+            HttpResponseMessage response = await client.GetAsync(url, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            Stream content = await response.Content.ReadAsStreamAsync();
-            result = await JsonSerializer.DeserializeAsync<Dictionary<string, JsonElement>>(content) ?? [];
+            Stream content = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            result = await JsonSerializer.DeserializeAsync<Dictionary<string, JsonElement>>(content, cancellationToken: cancellationToken).ConfigureAwait(false) ?? [];
 
             if (result.TryGetValue("Information", out JsonElement json))
             {

@@ -6,7 +6,7 @@ using StockTicker.Infrastructure;
 using StockTicker.WebApi;
 using StockTicker.WebApi.Common;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddStockTickerCoreServices(builder.Configuration);

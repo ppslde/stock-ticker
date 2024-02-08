@@ -10,6 +10,7 @@
       <InternalsVisibleTo Include="StockTicker.Infrastructure.Tests" />
       <PackageReference Include="Azure.Data.Tables" Version="12.8.2" />
       <PackageReference Include="Flurl" Version="4.0.0" />
+      <PackageReference Include="System.Linq.Async.Queryable" Version="6.0.1" />
       <ProjectReference Include="..\StockTicker.Core\StockTicker.Core.csproj" />
   </ItemGroup>
 
