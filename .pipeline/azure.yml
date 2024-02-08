@@ -1,19 +1,139 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  batch: true
+  branches:
+    include:
+      - feature/*
+  paths:
+    exclude:
+      - tests/*
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
+  - group: 'stock-ticker-variables'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
+- stage: 'Build'
+  jobs:
+    - job: 'BuildAndPublish'
+      steps:
+        - checkout: self
+          fetchDepth: 0
+
+        - task: gitversion/setup@0
+          inputs:
+            versionSpec: '5.x'
+          displayName: 'Install GitVersion'
+
+        - task: gitversion/execute@0
+          displayName: 'Determine Version'
+
+        - task: PowerShell@2
+          inputs:
+            targetType: inline
+            script: |
+              Write-Host "New build number: $(GitVersion.LegacySemVer)"
+              Write-Host '##vso[build.updatebuildnumber]$(GitVersion.LegacySemVer)'
+          displayName: Set build number
+
+        - task: UseDotNet@2
+          inputs:
+            version: '8.x'
+          displayName: 'Install .NET Core SDK'
+
+        - task: NodeTool@0
+          inputs:
+            versionSpec: '16.x'
+          displayName: 'Install Node.js'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'build'
+            projects: 'src/StockTicker.EodUpdateRunner/StockTicker.EodUpdateRunner.csproj'
+          displayName: 'Build EodUpdateRunner project'
+        
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'build'
+            projects: 'src/StockTicker.WebApi/StockTicker.WebApi.csproj'
+          displayName: 'Build WebApi project'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+              command: 'test'
+              projects: '**/*.Test?(s).csproj'
+              publishTestResults: true
+              arguments: '--verbosity normal --collect "XPlat Code Coverage" --logger trx -p:CollectCoverage=true -p:CoverletOutputFormat=opencover'
+          displayName: 'Execute tests'
+
+        - task: PublishCodeCoverageResults@1
+          inputs:
+            codeCoverageTool: 'Cobertura'
+            summaryFileLocation: '$(Agent.TempDirectory)/*/coverage.cobertura.xml'
+          displayName: 'Publish test results'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'publish'
+            publishWebProjects: false
+            projects: 'src/StockTicker.EodUpdateRunner/StockTicker.EodUpdateRunner.csproj'
+            arguments: '-t:PublishContainer -p:ContainerRegistry=&(container_registry) -p:ContainerRepository=$(container_repo_eodrunner) -p:ContainerImageTag=$(Build.BuildNumber)'
+          env:
+            SDK_CONTAINER_REGISTRY_UNAME: '$(container_registry_user)'
+            SDK_CONTAINER_REGISTRY_PWORD: '$(container_registry_password)'
+          displayName: 'Publish EodUpdateRunner container'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'publish'
+            projects: 'src/StockTicker.WebApi/StockTicker.WebApi.csproj'
+            arguments: '-p:PublishProfile=DefaultContainer -p:ContainerRegistry=&(container_registry) -p:ContainerRepository=$(container_repo_webapi) -p:ContainerImageTag=$(Build.BuildNumber)'
+          env:
+            SDK_CONTAINER_REGISTRY_UNAME: '$(container_registry_user)'
+            SDK_CONTAINER_REGISTRY_PWORD: '$(container_registry_password)'
+          displayName: 'Publish WebApi container'
+
+- stage: 'Dev'
+  displayName: 'Deploy to the dev environment'
+  dependsOn: Build
+  condition:  succeeded()
+  variables:
+    container_tag: $(Build.BuildNumber)
+  jobs:
+    - deployment: Deployment
+      environment: 'stock-ticker'
+      strategy:
+       runOnce:
+         deploy:
+           steps:
+
+            - download: none
+
+            - checkout: self
+              fetchDepth: 0
+
+            - task: AzureCLI@2
+              env:
+                    AZURE_CORE_OUTPUT: table
+                    CONTAINERREGISTRY_USERNAME: $(sdk_container_user)
+                    CONTAINERREGISTRY_PASSWORD: $(sdk_container_registry)
+                    CONTAINERREGISTRY: $(sdk_container_registry)
+                    DEPLOY_IMAGE_EODRUNNER: $(ingest_api_repo)
+                    DEPLOY_IMAGE_WEBAPI: $(web_api_repo)
+                    DEPLOY_CONTAINER_TAG: $(container_tag)
+                    AUTH_CLIENTID: $(auth_client_id)
+                    AUTH_CLIENTSECRET: $(auth_client_secret)
+              inputs:
+                azureSubscription: $(service_connection)
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                    az deployment group create \
+                        --only-show-errors \
+                        --resource-group $(resource_group_name) \
+                        --mode Complete \
+                        --parameters ./.pipeline/azure-deployment.bicepparam \
+                        --what-if
+                failOnStandardError: true
+              displayName: What-If infrastructure
