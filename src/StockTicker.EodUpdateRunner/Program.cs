@@ -1,16 +1,11 @@
-using Serilog;
-using Serilog.Core;
 using StockTicker.Core;
 using StockTicker.EodUpdateRunner;
 using StockTicker.Infrastructure;
+using StockTicker.Infrastructure.Logging;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-builder.Logging.ClearProviders();
-Logger l = new LoggerConfiguration()
-                .ReadFrom.Configuration(builder.Configuration)
-                .CreateLogger();
-builder.Logging.AddSerilog(l);
+builder.Logging.AddApplicationLogging(builder.Configuration);
 
 builder.Services.AddStockTickerInfrastructureServices(builder.Configuration);
 builder.Services.AddStockTickerCoreServices(builder.Configuration);

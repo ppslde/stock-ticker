@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Ppsl.Serilog.Logging;
-using Serilog;
 using StockTicker.Core;
 using StockTicker.Infrastructure;
+using StockTicker.Infrastructure.Logging;
 using StockTicker.WebApi;
 using StockTicker.WebApi.Common;
 
@@ -12,6 +11,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddStockTickerCoreServices(builder.Configuration);
 builder.Services.AddStockTickerInfrastructureServices(builder.Configuration);
 builder.Services.AddWebUIServices();
+
+builder.Logging.AddApplicationLogging(builder.Configuration);
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
@@ -38,8 +39,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.AddLogging("stock.ticker.api..log");
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -52,8 +51,6 @@ if (app.Environment.IsDevelopment())
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseSerilogRequestLogging();
 
 app.UseCors();
 app.UseRouting();
