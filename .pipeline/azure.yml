@@ -33,8 +33,9 @@ stages:
           inputs:
             targetType: inline
             script: |
-              Write-Host "New build number: $(GitVersion.LegacySemVer)"
-              Write-Host '##vso[build.updatebuildnumber]$((Get-Date).year).$(GitVersion.Minor).$(GitVersion.Patch)-$(GitVersion.WeightedPreReleaseNumber)'
+              $buildNumber = '$((Get-Date).year).$(GitVersion.Minor).$(GitVersion.Patch)-$(GitVersion.WeightedPreReleaseNumber)'
+              Write-Host "New build number: $buildNumber"
+              Write-Host '##vso[build.updatebuildnumber]$buildNumber'
           displayName: 'Set build number'
 
         - task: UseDotNet@2
