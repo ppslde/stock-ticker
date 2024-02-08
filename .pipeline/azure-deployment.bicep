@@ -34,7 +34,7 @@ var eodRunnerImmageFull = '${containerRegistry}/${eodRunnerImage}:${containerTag
 var webApiImageFull = '${containerRegistry}/${webApiImage}:${containerTag}'
 
 resource dataStorage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: 'stockdata'
+  name: 'ppslstockdata'
   location: location
   sku: {
     name: 'Standard_LRS'
@@ -67,7 +67,7 @@ resource dataStorageContainerDeadletter 'Microsoft.Storage/storageAccounts/blobS
 }
 
 resource logWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
-  name: 'stock-log-workspace'
+  name: 'ppsl-stock-log-workspace'
   location: location
   properties: {
     sku: {
@@ -78,7 +78,7 @@ resource logWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: 'stock-app-insights'
+  name: 'ppsl-stock-app-insights'
   location: location
   kind: 'web'
   properties: {
@@ -94,7 +94,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' = {
-  name: 'stock-containerEnvironment'
+  name: 'ppsl-stock-containerEnvironment'
   location: location
   properties: {
     appLogsConfiguration: {
@@ -108,7 +108,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01'
 }
 
 resource eodRunnerApp 'Microsoft.App/jobs@2023-05-01' = {
-  name: 'stock-eod-runner'
+  name: 'ppsl-stock-eod-runner'
   location: location
   properties: {
     environmentId: containerAppsEnvironment.id
@@ -171,7 +171,7 @@ resource eodRunnerApp 'Microsoft.App/jobs@2023-05-01' = {
 
 
 resource webApiApp 'Microsoft.App/containerApps@2023-05-01' = {
-  name: 'stock-web-api'
+  name: 'ppsl-stock-web-api'
   location: location
   properties: {
     managedEnvironmentId: containerAppsEnvironment.id
