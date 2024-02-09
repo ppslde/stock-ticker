@@ -275,7 +275,7 @@ resource webApiApp 'Microsoft.App/containerApps@2023-05-01' = {
 
 resource webApiAppAuth 'Microsoft.App/containerApps/authConfigs@2023-05-01' = {
   parent: webApiApp
-  name: 'ppsl-current'
+  name: 'current'
   properties: {
     platform: {
       enabled: true
