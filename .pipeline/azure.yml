@@ -12,7 +12,6 @@ pool:
 
 variables:
   - group: 'stock-ticker-variables'
-
 stages:
 - stage: 'Build'
   jobs:
@@ -84,7 +83,7 @@ stages:
           env:
             SDK_CONTAINER_REGISTRY_UNAME: '$(container_registry_user)'
             SDK_CONTAINER_REGISTRY_PWORD: '$(container_registry_password)'
-          displayName: 'Publish EodUpdateRunner container'
+          displayName: 'Publish container to $(container_repo_eodrunner)'
 
         - task: DotNetCoreCLI@2
           inputs:
@@ -94,7 +93,7 @@ stages:
           env:
             SDK_CONTAINER_REGISTRY_UNAME: '$(container_registry_user)'
             SDK_CONTAINER_REGISTRY_PWORD: '$(container_registry_password)'
-          displayName: 'Publish WebApi container'
+          displayName: 'Publish container to $(container_repo_webapi)'
 
 - stage: 'System'
   displayName: 'Deploy system'
