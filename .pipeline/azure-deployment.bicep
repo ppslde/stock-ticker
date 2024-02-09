@@ -208,6 +208,10 @@ resource webApiApp 'Microsoft.App/containerApps@2023-05-01' = {
           name: 'data-storage-secret'
           value: dataStorageConnection
         }
+        {
+          name: 'microsoft-provider-authentication-secret'
+          value: authClientSecret
+        }
       ]
       registries: [
         {
@@ -265,6 +269,39 @@ resource webApiApp 'Microsoft.App/containerApps@2023-05-01' = {
           }
         ]
       }
+    }
+  }
+}
+
+resource webApiAppAuth 'Microsoft.App/containerApps/authConfigs@2023-05-01' = {
+  parent: webApiApp
+  name: 'ppsl-current'
+  properties: {
+    platform: {
+      enabled: true
+    }
+    globalValidation: {
+      unauthenticatedClientAction: 'RedirectToLoginPage'
+      redirectToProvider: 'azureactivedirectory'
+    }
+    identityProviders: {
+      azureActiveDirectory: {
+        registration: {
+          openIdIssuer: 'https://sts.windows.net/${subscription().tenantId}/v2.0'
+          clientId: authClientId
+          clientSecretSettingName: 'microsoft-provider-authentication-secret'
+        }
+        validation: {
+          allowedAudiences: []
+        }
+        isAutoProvisioned: false
+      }
+    }
+    login: {
+      routes: {}
+      preserveUrlFragmentsForLogins: false
+      cookieExpiration: {}
+      nonce: {}
     }
   }
 }
