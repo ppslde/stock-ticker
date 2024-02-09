@@ -114,6 +114,20 @@ stages:
             - checkout: self
               fetchDepth: 0
 
+            - script: |
+                echo $CONTAINER_REGISTRY
+                echo $CONTAINER_REGISTRY_USERNAME
+                echo $DEPLOYMENT_IMAGE_EOD
+                echo $DEPLOYMENT_IMAGE_WEBAPI
+                echo $DEPLOYMENT_CONTAINER_TAG
+              env:
+                CONTAINER_REGISTRY_USERNAME: $(container_registry_user)
+                CONTAINER_REGISTRY: $(container_registry)
+                DEPLOYMENT_IMAGE_EOD: $(container_repo_eodrunner)
+                DEPLOYMENT_IMAGE_WEBAPI: $(container_repo_webapi)
+                DEPLOYMENT_CONTAINER_TAG: $(container_tag)
+              displayName: Env var check
+
             - task: AzureCLI@2
               env:
                     AZURE_CORE_OUTPUT: table
