@@ -117,11 +117,11 @@ resource eodRunnerApp 'Microsoft.App/jobs@2023-05-01' = {
     environmentId: containerAppsEnvironment.id
     configuration: {
       triggerType: 'Schedule'
-      replicaTimeout: 55
+      replicaTimeout: 600
       replicaRetryLimit: 0
       scheduleTriggerConfig: {
         replicaCompletionCount: 1
-        cronExpression: '*/1 * * * *'
+        cronExpression: '5 3 * * *'
         parallelism: 1
       }
       secrets: [

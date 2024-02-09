@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using StockTicker.Core.Common.Contracts;
 using StockTicker.WebApi.Common;
 
 namespace StockTicker.WebApi.Controllers;
@@ -14,9 +15,10 @@ public class WeatherForecastEndpoints : EndpointGroupBase
     public override void Map(IEndpointRouteBuilder endpoints)
     {
         endpoints
-            .MapGroup(this)
+            .MapGroup(this, "weather")
             //.RequireAuthorization()
-            .MapGet(Get);
+            .MapGet(Get)
+            .MapGet(Get2, "info");
     }
 
     private IEnumerable<WeatherForecast> Get(ILogger<WeatherForecastEndpoints> logger)
@@ -28,5 +30,22 @@ public class WeatherForecastEndpoints : EndpointGroupBase
             Summary = Summaries[RandomNumberGenerator.GetInt32(Summaries.Length)]
         })
         .ToArray();
+    }
+
+    private IEnumerable<string> Get2(ICurrentUser currentUser, HttpContext httpContext)
+    {
+        List<string> data = [
+            currentUser.UserName,
+            currentUser.UserId.ToString(),
+            ];
+
+        data.Add("REQ_HEADERS:");
+        data.AddRange(httpContext.Request.Headers.Select(h => $"{h.Key}:{h.Value}"));
+        data.Add("SESSION_KEYS:");
+        data.AddRange(httpContext.Session.Keys);
+        data.Add("CLAIMS:");
+        data.AddRange(httpContext.User.Claims.Select(c => $"{c.ValueType}:{c.Value}"));
+
+        return data;
     }
 }
