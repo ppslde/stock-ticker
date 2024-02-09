@@ -42,7 +42,7 @@ public class WeatherForecastEndpoints : EndpointGroupBase
         data.Add("REQ_HEADERS:");
         data.AddRange(httpContext.Request.Headers.Select(h => $"{h.Key}:{h.Value}"));
         data.Add("SESSION_KEYS:");
-        data.AddRange(httpContext.Session.Keys);
+        data.AddRange(httpContext.Session?.Keys ?? []);
         data.Add("CLAIMS:");
         data.AddRange(httpContext.User.Claims.Select(c => $"{c.ValueType}:{c.Value}"));
 
