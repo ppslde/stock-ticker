@@ -139,6 +139,9 @@ stages:
                     DEPLOY_CONTAINER_TAG: $(container_tag)
                     AUTH_CLIENTID: $(auth_client_id)
                     AUTH_CLIENTSECRET: $(auth_client_secret)
+                    ALPHA_VANTAGE_KEY_0: $(alpha_vantage_key_0)
+                    ALPHA_VANTAGE_KEY_1: $(alpha_vantage_key_1)
+                    ALPHA_VANTAGE_KEY_2: $(alpha_vantage_key_2)
               inputs:
                 azureSubscription: $(service_connection)
                 scriptType: bash
@@ -164,6 +167,9 @@ stages:
                     DEPLOY_CONTAINER_TAG: $(container_tag)
                     AUTH_CLIENTID: $(auth_client_id)
                     AUTH_CLIENTSECRET: $(auth_client_secret)
+                    ALPHA_VANTAGE_KEY_0: $(alpha_vantage_key_0)
+                    ALPHA_VANTAGE_KEY_1: $(alpha_vantage_key_1)
+                    ALPHA_VANTAGE_KEY_2: $(alpha_vantage_key_2)
               inputs:
                 azureSubscription: $(service_connection)
                 scriptType: bash

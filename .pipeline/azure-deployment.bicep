@@ -29,6 +29,9 @@ param webApiImage string
 @description('Container tag for deployment')
 param containerTag string
 
+param alphaVantageKey0 string
+param alphaVantageKey1 string
+param alphaVantageKey2 string
 
 var eodRunnerImmageFull = '${containerRegistry}/${eodRunnerImage}:${containerTag}'
 var webApiImageFull = '${containerRegistry}/${webApiImage}:${containerTag}'
@@ -201,6 +204,10 @@ resource webApiApp 'Microsoft.App/containerApps@2023-05-01' = {
           value: containerPassword
         }
         {
+          name: 'microsoft-provider-authentication-secret'
+          value: authClientSecret
+        }
+        {
           name: 'appinsights-secret'
           value: appInsights.properties.ConnectionString
         }
@@ -209,8 +216,16 @@ resource webApiApp 'Microsoft.App/containerApps@2023-05-01' = {
           value: dataStorageConnection
         }
         {
-          name: 'microsoft-provider-authentication-secret'
-          value: authClientSecret
+          name: 'alpha-vantage-key-0'
+          value: alphaVantageKey0
+        }
+        {
+          name: 'alpha-vantage-key-1'
+          value: alphaVantageKey1
+        }
+        {
+          name: 'alpha-vantage-key-2'
+          value: alphaVantageKey2
         }
       ]
       registries: [
@@ -248,8 +263,20 @@ resource webApiApp 'Microsoft.App/containerApps@2023-05-01' = {
               secretRef: 'appinsights-secret'
             }
             {
-              name: 'ConnectionStrings__DataStorageAccount'
+              name: 'AzTableStorageSettings__Connection'
               secretRef: 'data-storage-secret'
+            }
+            {
+              name: 'AlphaVantageSettings__ApiKeys__0'
+              secretRef: 'alpha-vantage-key-0'
+            }
+            {
+              name: 'AlphaVantageSettings__ApiKeys__1'
+              secretRef: 'alpha-vantage-key-1'
+            }
+            {
+              name: 'AlphaVantageSettings__ApiKeys__2'
+              secretRef: 'alpha-vantage-key-2'
             }
           ]
         }
@@ -257,7 +284,7 @@ resource webApiApp 'Microsoft.App/containerApps@2023-05-01' = {
 
       scale: {
         minReplicas: 0
-        maxReplicas: 10
+        maxReplicas: 2
         rules: [
           {
             name: 'http-scale'
