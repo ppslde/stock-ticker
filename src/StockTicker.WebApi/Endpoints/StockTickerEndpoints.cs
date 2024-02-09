@@ -11,12 +11,9 @@ public class StockTickerEndpoints : EndpointGroupBase
     public override void Map(IEndpointRouteBuilder endpoints)
     {
         endpoints
-            .MapGroup(this)
+            .MapGroup(this, "stock-ticker")
             //.RequireAuthorization()
-            .MapGet(SearchSymbol, "search");
-
-        endpoints
-            .MapGroup(this)
+            .MapGet(SearchSymbol, "search")
             .MapPost(SaveSymbol);
     }
 

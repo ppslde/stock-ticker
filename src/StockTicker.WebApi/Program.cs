@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using StockTicker.Core;
 using StockTicker.Infrastructure;
 using StockTicker.Infrastructure.Logging;
@@ -15,44 +14,18 @@ builder.Services.AddWebUIServices();
 builder.Logging.AddApplicationLogging(builder.Configuration);
 
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-});
+builder.Services.AddAuthentication();
+
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        var origins = builder.Configuration["AllowedOrigins"]?.Split(";");
 
-        if (origins == null || origins.Length == 0)
-            policy.AllowAnyOrigin();
-        else
-            policy.WithOrigins(origins);
-
-        policy
-         .AllowAnyMethod()
-         .AllowAnyHeader();
-    });
-});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseHealthChecks("/healthy");
 
-app.UseHealthChecks("/health");
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.UseCors();
 app.UseRouting();
 
 app.UseAuthentication();

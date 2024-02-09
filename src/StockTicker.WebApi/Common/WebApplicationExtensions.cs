@@ -4,10 +4,11 @@ namespace StockTicker.WebApi.Common;
 
 internal static class WebApplicationExtensions
 {
-    public static RouteGroupBuilder MapGroup(this IEndpointRouteBuilder endpoints, EndpointGroupBase group)
+    public static RouteGroupBuilder MapGroup(this IEndpointRouteBuilder endpoints, EndpointGroupBase group, string? groupName = default)
     {
+        groupName ??= group.GroupName;
         return endpoints
-                .MapGroup($"{group.GroupName}")
+                .MapGroup($"{groupName}")
                 .WithTags(group.Tags.ToArray());
     }
 

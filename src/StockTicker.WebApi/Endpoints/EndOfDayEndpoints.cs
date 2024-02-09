@@ -12,7 +12,7 @@ public class EndOfDayEndpoints : EndpointGroupBase
     {
 
         endpoints
-            .MapGroup(this)
+            .MapGroup(this, "end-of-day")
             //.RequireAuthorization()
             .MapPost(UpdateSymbolEod, "update");
 
