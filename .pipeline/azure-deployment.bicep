@@ -29,8 +29,12 @@ param webApiImage string
 @description('Container tag for deployment')
 param containerTag string
 
+@description('Api key for AlphaVantage access')
+@secure()
 param alphaVantageKey0 string
+@secure()
 param alphaVantageKey1 string
+@secure()
 param alphaVantageKey2 string
 
 var eodRunnerImmageFull = '${containerRegistry}/${eodRunnerImage}:${containerTag}'
@@ -137,6 +141,18 @@ resource eodRunnerApp 'Microsoft.App/jobs@2023-05-01' = {
           name: 'data-storage-secret'
           value: dataStorageConnection
         }
+        {
+          name: 'alpha-vantage-key-0'
+          value: alphaVantageKey0
+        }
+        {
+          name: 'alpha-vantage-key-1'
+          value: alphaVantageKey1
+        }
+        {
+          name: 'alpha-vantage-key-2'
+          value: alphaVantageKey2
+        }
       ]
       registries: [
         {
@@ -162,8 +178,20 @@ resource eodRunnerApp 'Microsoft.App/jobs@2023-05-01' = {
               secretRef: 'appinsights-secret'
             }
             {
-              name: 'ConnectionStrings__DataStorageAccount'
+              name: 'AzTableStorageSettings__Connection'
               secretRef: 'data-storage-secret'
+            }
+            {
+              name: 'AlphaVantageSettings__ApiKeys__0'
+              secretRef: 'alpha-vantage-key-0'
+            }
+            {
+              name: 'AlphaVantageSettings__ApiKeys__1'
+              secretRef: 'alpha-vantage-key-1'
+            }
+            {
+              name: 'AlphaVantageSettings__ApiKeys__2'
+              secretRef: 'alpha-vantage-key-2'
             }
           ]
         }
